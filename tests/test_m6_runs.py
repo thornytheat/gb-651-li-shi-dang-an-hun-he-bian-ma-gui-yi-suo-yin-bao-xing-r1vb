@@ -2,6 +2,7 @@ from app.modules.m6_runs.core import SAMPLE, csv_text, run
 class FakeStore:
     def __init__(self): self.values={}
     def record(self,digest,rid,result): self.values.setdefault(digest,(rid,result)); return {"run_id":self.values[digest][0],"result":self.values[digest][1]}
+    def save_evidence(self,*args,**kwargs): return None
 def test_csv_header(): assert csv_text(SAMPLE["rows"]).startswith("source_line,archive_id,reason")
 def test_csv_preserves_zero(): assert "000123" in csv_text(SAMPLE["rows"])
 def test_run_id_stable(): assert run({})["run_id"]==run({})["run_id"]

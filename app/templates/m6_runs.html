@@ -1,4 +1,47 @@
 {% extends "base.html" %}{% block content %}
-<div class="grid module-6"><section class="panel panel--primary"><div class="panel__head"><h2>批次导出记录</h2><span class="panel__meta">M6 · {{ data.status|default('READY') }}</span></div><div class="panel__body panel__body--scroll"><table class="ledger"><thead><tr><th>字段</th><th>值</th><th>证据</th></tr></thead><tbody>{% for key, value in data.items() %}<tr><td>{{ key }}</td><td class="num">{{ value }}</td><td>R{{ loop.index }}</td></tr>{% endfor %}</tbody></table></div></section>
-<div class="stack"><section class="panel"><div class="panel__head"><h2>原因码</h2><span class="panel__meta">{{ data.reason|default('OK') }}</span></div><div class="panel__body bars"><i style="--v:74%"></i><i style="--v:47%"></i></div></section><section class="panel"><div class="panel__head"><h2>本次动作</h2><span class="panel__meta">/api/export/evidence.csv</span></div><div class="panel__body"><button class="btn btn--primary" data-endpoint="/api/export/evidence.csv">运行 批次导出</button><pre class="result">等待运行</pre></div></section></div></div>
+<div class="grid module-6">
+  <section class="panel panel--primary">
+    <div class="panel__head"><h2>批次导出记录</h2><span class="panel__meta">M6 · {{ data.status|default('READY') }}</span></div>
+    <div class="panel__body panel__body--scroll">
+      <table class="ledger">
+        <thead><tr><th>字段</th><th>值</th><th>证据</th></tr></thead>
+        <tbody>
+        {% for key, value in data.items() %}
+          <tr><td>{{ key }}</td><td class="num">{{ value }}</td><td>R{{ loop.index }}</td></tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+  <div class="stack">
+    <section class="panel">
+      <div class="panel__head"><h2>安全导出</h2><span class="panel__meta">公式注入防护 · 逐字存证</span></div>
+      <div class="panel__body">
+        <p class="hint">危险单元格（公式触发符含全角、前导零、超长数字串、布尔/日期、自带引号）前置防护单引号；原文不改动，防护位置逐格登记在文件清单行，回收时按清单还原。</p>
+        <button class="btn btn--primary" id="safe-export" data-run-id="{{ data.evidence_run_id|default(data.run_id) }}">导出安全证据表 evidence.csv</button>
+        <pre class="result" id="export-result">等待导出</pre>
+      </div>
+    </section>
+    <section class="panel">
+      <div class="panel__head"><h2>回收核验</h2><span class="panel__meta">/api/reclaim</span></div>
+      <div class="panel__body">
+        <p class="hint">回收同一份表：核验清单与服务端证据是否配套，篡改或错配整批拒收；同一份表并发只接纳一次，重试不重复入库。</p>
+        <input type="file" id="reclaim-file" accept=".csv,text/csv">
+        <button class="btn btn--primary" id="reclaim-btn">提交回收表</button>
+        <pre class="result" id="reclaim-result">等待回收</pre>
+      </div>
+    </section>
+    <section class="panel">
+      <div class="panel__head"><h2>回收作业</h2><span class="panel__meta">中断可续跑</span></div>
+      <div class="panel__body panel__body--scroll">
+        <button class="btn" id="reload-jobs">刷新作业</button>
+        <table class="ledger" id="jobs-table">
+          <thead><tr><th>作业</th><th>批次</th><th>状态</th><th>原因</th><th>入库/合计</th><th>操作</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+</div>
+<script src="/static/reclaim.js"></script>
 {% endblock %}
